@@ -11,16 +11,19 @@ public class CharacterScript : MonoBehaviour
     private bool groundedPlayer;
 
     private CharacterController _characterController;
+    private Animator _animator;
 
     void Start()
     {
         _characterController = GetComponent<CharacterController>();
+        _animator = GetComponent<Animator>();
         playerVelocityY = 0f;
 
     }
     void Update()
     {
-       groundedPlayer = _characterController.isGrounded;
+        int animatorState = 0;
+      // groundedPlayer = _characterController.isGrounded;
         if (groundedPlayer && playerVelocityY < 0)
         {
             playerVelocityY = 0f;
@@ -33,6 +36,12 @@ public class CharacterScript : MonoBehaviour
             dx *= 0.707f; // /= Mathf.Sqrt(2f);
             dy *= 0.707f; // /= Mathf.Sqrt(2f);
         }
+
+        if (dy != 0)
+        {
+            animatorState = 1;
+        }
+
         if (Input.GetButtonDown("Jump") && groundedPlayer)
         {
             playerVelocityY += Mathf.Sqrt(jumpHeight * -2.0f * gravityValue);
@@ -47,20 +56,26 @@ public class CharacterScript : MonoBehaviour
         _characterController.Move(Time.deltaTime *
             (speed * (dx * Camera.main.transform.right + dy * horizontalForward) +
             playerVelocityY * Vector3.up));
+        // повертаємо персонаж у напрямку погляду камери
+        this.transform.forward = horizontalForward;
+        // задаємо стан аніматору
+        _animator.SetInteger("State", animatorState);
     }
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Enter: " + other.gameObject.name);
+       
         if (other.CompareTag("Floor"))
         {
+            Debug.Log("Enter: " + other.gameObject.name);
             groundedPlayer = true;
         }
     }
     private void OnTriggerExit(Collider other)
     {
-        Debug.Log("Exit: " + other.gameObject.name);
+        
         if (other.CompareTag("Floor"))
         {
+            Debug.Log("Exit: " + other.gameObject.name);
             groundedPlayer = false;
         }
     }
