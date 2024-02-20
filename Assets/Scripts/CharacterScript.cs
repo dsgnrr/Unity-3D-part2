@@ -37,15 +37,23 @@ public class CharacterScript : MonoBehaviour
             dy *= 0.707f; // /= Mathf.Sqrt(2f);
         }
 
-        if (dy != 0)
+        if (dy != 0 && groundedPlayer) // перевага "вперед" (якщо дiагональ, то анiмацiя)
         {
             animatorState = 1;
         }
-
+        else if (dx != 0 && groundedPlayer) 
+        {
+            animatorState = 2;
+        }
+        if (!groundedPlayer)
+        {
+            animatorState = 3;
+        }
         if (Input.GetButtonDown("Jump") && groundedPlayer)
         {
             playerVelocityY += Mathf.Sqrt(jumpHeight * -2.0f * gravityValue);
         }
+
         // Camera.main.transform.forward - має нахил, иому для .Move має піднімальний ефект
         Vector3 horizontalForward = Camera.main.transform.forward;
         horizontalForward.y = 0;
@@ -68,6 +76,7 @@ public class CharacterScript : MonoBehaviour
         {
             Debug.Log("Enter: " + other.gameObject.name);
             groundedPlayer = true;
+            _animator.SetInteger("State", 0);
         }
     }
     private void OnTriggerExit(Collider other)
