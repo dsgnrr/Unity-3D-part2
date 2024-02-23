@@ -7,7 +7,7 @@ public class CharacterScript : MonoBehaviour
     private float speed = 10f;
     private float playerVelocityY; // вертикальна компонента швидкості
     private float gravityValue = -9.80f;
-    private float jumpHeight = 1.0f;
+    private float jumpHeight = 1.5f;
     private bool groundedPlayer;
 
     private CharacterController _characterController;
@@ -23,7 +23,11 @@ public class CharacterScript : MonoBehaviour
     void Update()
     {
         int animatorState = 0;
-      // groundedPlayer = _characterController.isGrounded;
+        if (_characterController.isGrounded)
+        {
+            groundedPlayer = true;
+        }
+        // groundedPlayer = _characterController.isGrounded;
         if (groundedPlayer && playerVelocityY < 0)
         {
             playerVelocityY = 0f;
@@ -41,16 +45,15 @@ public class CharacterScript : MonoBehaviour
         {
             animatorState = 1;
         }
-        else if (dx != 0 && groundedPlayer) 
+        else if (dx != 0 && groundedPlayer)
         {
             animatorState = 2;
         }
-        if (!groundedPlayer)
-        {
-            animatorState = 3;
-        }
         if (Input.GetButtonDown("Jump") && groundedPlayer)
         {
+            animatorState = 4;
+            _animator.SetInteger("State", animatorState);
+            groundedPlayer = false;
             playerVelocityY += Mathf.Sqrt(jumpHeight * -2.0f * gravityValue);
         }
 
@@ -67,11 +70,13 @@ public class CharacterScript : MonoBehaviour
         // повертаємо персонаж у напрямку погляду камери
         this.transform.forward = horizontalForward;
         // задаємо стан аніматору
-        _animator.SetInteger("State", animatorState);
+        if (groundedPlayer)
+        {
+            _animator.SetInteger("State", animatorState);
+        }
     }
     private void OnTriggerEnter(Collider other)
     {
-       
         if (other.CompareTag("Floor"))
         {
             Debug.Log("Enter: " + other.gameObject.name);
@@ -81,11 +86,14 @@ public class CharacterScript : MonoBehaviour
     }
     private void OnTriggerExit(Collider other)
     {
-        
         if (other.CompareTag("Floor"))
         {
             Debug.Log("Exit: " + other.gameObject.name);
             groundedPlayer = false;
         }
+    }
+    public void OnJumpStart()
+    {
+        _animator.SetInteger("State", 3);
     }
 }
