@@ -18,6 +18,20 @@ public class GameState
             }
         }
     }
+    private static bool _isCompassVisible;
+    public static bool isCompassVisible
+    {
+        get => _isCompassVisible;
+        set
+        {
+            if (value != _isCompassVisible)
+            {
+                _isCompassVisible = value;
+                NotifySubscribers(nameof(isCompassVisible));
+            }
+        }
+    }
+
     public static List<Action<String>> Subscribers { get; } = new();
     public static void Subscribe(Action<String> action)=>
         Subscribers.Add(action);
