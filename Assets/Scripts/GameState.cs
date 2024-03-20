@@ -50,7 +50,6 @@ public class GameState
         }
     }
     #endregion
-
     #region isHintsVisible
     private static bool _isHintsVisible;
     public static bool isHintsVisible
@@ -66,8 +65,45 @@ public class GameState
         }
     }
     #endregion
+    #region Score
+    private static float _score;
+    public static float Score
+    {
+        get => _score;
+        set
+        {
+            if (value != _score)
+            {
+                _score = value;
+                NotifySubscribers(nameof(Score));
+            }
+        }
+    }
+    #endregion
 
-    public static List<Action<String>> Subscribers { get; } = new();
+    #region CoinCost
+    private static float _coinCoost;
+    public static float CoinCost => _coinCoost;
+    // "вартість" однієї монети в залежності від складності гри
+    public static float UpdateCoinCost() => _coinCoost=
+        1f
+        * (isCompassVisible ? 1f : 1.1f)
+        * (isRadarVisible ? 1f : 1.1f)
+        * (isHintsVisible ? 1f : 1.1f)
+        * (isCompassVisible || isRadarVisible || isHintsVisible ? 1f : 1.5f);
+    #endregion
+
+    private static void OnCoinCostChange(string propName)
+    {
+        if(propName==nameof(isCompassVisible)||
+            propName == nameof(isRadarVisible)||
+            propName == nameof(isHintsVisible))
+        {
+            UpdateCoinCost();
+            NotifySubscribers(nameof(CoinCost));
+        }
+    }
+    public static List<Action<String>> Subscribers { get; } = new() { OnCoinCostChange };
     public static void Subscribe(Action<String> action)=>
         Subscribers.Add(action);
     public static void Unsubscribe(Action<String> action) =>

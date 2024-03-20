@@ -21,6 +21,10 @@ public class PauseMenuScript : MonoBehaviour
         OnRadarVisibleChanged(radarToggle.isOn);
         OnHintsVisibleChanged(hintsToggle.isOn);
         ChangePause(content.activeSelf);
+        if (GameState.CoinCost == 0f)
+        {
+            GameState.UpdateCoinCost();
+        }
     }
 
     void Update()
