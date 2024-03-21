@@ -1,18 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 
 public class GameState
 {
     #region Stamina
     private static float _characterStamina;
-    public static float CharacterStamina 
+    public static float CharacterStamina
     {
         get => _characterStamina;
         set
         {
-            if(_characterStamina != value)
+            if (_characterStamina != value)
             {
                 _characterStamina = value;
                 NotifySubscribers(nameof(CharacterStamina));
@@ -80,31 +81,46 @@ public class GameState
         }
     }
     #endregion
-
     #region CoinCost
     private static float _coinCoost;
     public static float CoinCost => _coinCoost;
     // "вартість" однієї монети в залежності від складності гри
-    public static float UpdateCoinCost() => _coinCoost=
+    public static float UpdateCoinCost() => _coinCoost =
         1f
         * (isCompassVisible ? 1f : 1.1f)
         * (isRadarVisible ? 1f : 1.1f)
         * (isHintsVisible ? 1f : 1.1f)
         * (isCompassVisible || isRadarVisible || isHintsVisible ? 1f : 1.5f);
-    #endregion
-
     private static void OnCoinCostChange(string propName)
     {
-        if(propName==nameof(isCompassVisible)||
-            propName == nameof(isRadarVisible)||
+        if (propName == nameof(isCompassVisible) ||
+            propName == nameof(isRadarVisible) ||
             propName == nameof(isHintsVisible))
         {
             UpdateCoinCost();
             NotifySubscribers(nameof(CoinCost));
         }
     }
+    #endregion
+    #region GameMessages
+    private static List<GameMessage> gameMessages = new();
+    public static ReadOnlyCollection<GameMessage> GameMessages =>
+        new(gameMessages);
+    public static void AddGameMessage(GameMessage message)
+    {
+        gameMessages.Add(message);
+        NotifySubscribers(nameof(GameMessages));
+    }
+    public static void RemoveGameMessage(GameMessage message)
+    {
+        gameMessages.Remove(message);
+        NotifySubscribers(nameof(GameMessages));
+    }
+    #endregion
+
+
     public static List<Action<String>> Subscribers { get; } = new() { OnCoinCostChange };
-    public static void Subscribe(Action<String> action)=>
+    public static void Subscribe(Action<String> action) =>
         Subscribers.Add(action);
     public static void Unsubscribe(Action<String> action) =>
         Subscribers.Add(action);

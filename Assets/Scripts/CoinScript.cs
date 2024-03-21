@@ -31,6 +31,7 @@ public class CoinScript : MonoBehaviour
         GameState.Score += GameState.CoinCost;
         //Debug.Log("OnDisappearFinish");
         Respawn();
+        GameState.AddGameMessage(new() { Text = $"Здобуто {GameState.CoinCost:F1} балів" });
         _animator.SetInteger("State", 0);
     }
     private void Respawn()
@@ -64,10 +65,12 @@ public class CoinScript : MonoBehaviour
         if (propName == nameof(GameState.CoinCost))
         {
             Respawn();
+            GameState.AddGameMessage(new() { Text = $"Монету переміщено, нова вартість {GameState.CoinCost:F1}" });
         }
     }
     private void OnDestroy()
     {
         GameState.Unsubscribe(OnGameStateChange);
+        
     }
 }
